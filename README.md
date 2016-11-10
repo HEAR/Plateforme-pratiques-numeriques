@@ -1,4 +1,4 @@
-# HEAR PRatiques numériques, basé sur le CMS Kirby
+# HEAR pratiques numériques, basé sur le CMS Kirby
 
 Kirby is a file-based CMS (© 2009-2016 Bastian Allgeier GmbH).
 Easy to setup. Easy to use. Flexible as hell.
