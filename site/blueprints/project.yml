@@ -1,0 +1,29 @@
+title: Project
+
+files:
+  sortable: true
+
+pages: false
+
+fields:
+  title:
+    label: Titre
+    type:  text
+    width: 3/4
+
+  year:
+    label: Année
+    type:  text
+    width: 1/4
+
+  text:
+    label: Texte
+    type:  textarea
+    
+  pad:
+    label: Lien vers le pad
+    type: url
+    
+  ladate:
+    label: ladate
+    type: date
