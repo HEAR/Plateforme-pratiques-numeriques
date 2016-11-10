@@ -49,11 +49,7 @@ class Menu {
   }
 
   public function previewOption() {  
-
-    $preview = $this->page->url('preview');
-
-    if($preview && $this->page->option()->preview()) {
-
+    if($preview = $this->page->url('preview') and $this->page->canShowPreview()) {
       $this->isEmpty = false;
 
       return $this->item('play-circle-o', 'pages.show.preview', array(
@@ -62,15 +58,12 @@ class Menu {
         'title'         => 'p',
         'data-shortcut' => 'p',
       ));
-
     } else {
       return false;
     }
-
   }
 
   public function editOption() {  
-
     if($this->position == 'context') {
       $this->isEmpty = false;
 
@@ -78,13 +71,11 @@ class Menu {
         'href' => $this->page->url('edit'),
       ));      
     }
-
   }
 
-  public function visibilityOption() {
+  public function statusOption() {
 
-    if($this->page->ui()->visibility()) {
-
+    if($this->page->canChangeStatus()) {
       $this->isEmpty = false;
 
       if($this->page->isInvisible()) {
@@ -107,8 +98,7 @@ class Menu {
   } 
 
   public function templateOption() {  
-
-    if($this->page->ui()->template()) {
+    if($this->page->canChangeTemplate()) {
       $this->isEmpty = false;
 
       return $this->item('file-code-o', l('pages.show.template') . ': ' . i18n($this->page->blueprint()->title()), array(
@@ -119,12 +109,10 @@ class Menu {
     } else {      
       return false;
     }
-
   }
 
   public function urlOption() {
-
-    if($this->page->ui()->url()) {
+    if($this->page->canChangeUrl()) {
       $this->isEmpty = false;
 
       return $this->item('chain', 'pages.show.changeurl', array(
@@ -136,12 +124,12 @@ class Menu {
     } else {
       return false;
     }
-
   }
 
   public function deleteOption() {
-    if($this->page->ui()->delete()) {
+    if($this->page->isDeletable()) {
       $this->isEmpty = false;
+
       return $this->item('trash-o', 'pages.show.delete', array(
         'href'          => $this->modalUrl('delete'),
         'title'         => '#',
@@ -166,7 +154,7 @@ class Menu {
 
     $list->append($this->previewOption());
     $list->append($this->editOption());
-    $list->append($this->visibilityOption());
+    $list->append($this->statusOption());
     $list->append($this->templateOption());
     $list->append($this->urlOption());
     $list->append($this->deleteOption());

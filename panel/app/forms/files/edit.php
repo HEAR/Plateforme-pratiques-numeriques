@@ -1,7 +1,5 @@
 <?php 
 
-use Kirby\Panel\Event;
-
 return function($file) {
 
   // file info display
@@ -14,9 +12,6 @@ return function($file) {
     $info[] = $file->dimensions();      
   }
 
-  $renameEvent = $file->event('rename:ui');
-  $updateEvent = $file->event('update:ui');
-
   // setup the default fields
   $fields = array(
     '_name' => array(
@@ -25,7 +20,6 @@ return function($file) {
       'extension' => $file->extension(), 
       'required'  => true,
       'default'   => $file->name(),
-      'readonly'  => $renameEvent->isDenied()
     ),
     '_info' => array(
       'label'    => 'files.show.info.label',
@@ -47,18 +41,6 @@ return function($file) {
 
   $form->centered = true;
   $form->buttons->cancel = '';
-
-  // disable custom fields
-  if($updateEvent->isDenied()) {
-    foreach($file->getFormFields() as $key => $field) {
-      $form->fields->$key->readonly = true;
-    }
-  }
-
-  // if there are readonly fields only, disable the entire form
-  if($form->fields()->count() === $form->fields->filterBy('readonly', true)->count()) {
-    $form->disable();
-  }
 
   return $form;
 

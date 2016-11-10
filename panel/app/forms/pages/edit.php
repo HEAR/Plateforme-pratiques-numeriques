@@ -1,7 +1,6 @@
 <?php 
 
 use Kirby\Panel\Form;
-use Kirby\Panel\Event;
 
 return function($page) {
 
@@ -39,11 +38,6 @@ return function($page) {
   } else {
     // remove the cancel button
     $form->buttons->cancel = '';    
-  }
-
-  // check for update permissions
-  if(!$page->ui()->update()) {
-    $form->disable();
   }
 
   return $form;

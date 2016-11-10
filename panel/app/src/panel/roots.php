@@ -31,16 +31,4 @@ class Roots extends Obj {
 
   }
 
-  public function __debuginfo() {
-
-    // get the obj debuginfo
-    $data = parent::__debuginfo();
-
-    // remove the recursion
-    unset($data['panel']);
-
-    return $data;
-  
-  }  
-
 }

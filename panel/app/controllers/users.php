@@ -1,7 +1,6 @@
 <?php
 
 use Kirby\Panel\Models\User;
-use Kirby\Panel\Exceptions\PermissionsException;
 
 class UsersController extends Kirby\Panel\Controllers\Base {
 
@@ -25,8 +24,8 @@ class UsersController extends Kirby\Panel\Controllers\Base {
 
   public function add() {
 
-    if(panel()->user()->ui()->create() === false) {
-      throw new PermissionsException();
+    if(!panel()->user()->isAdmin()) {
+      $this->redirect('users');
     }
 
     $self = $this;
@@ -64,8 +63,8 @@ class UsersController extends Kirby\Panel\Controllers\Base {
     $self = $this;
     $user = $this->user($username);
 
-    if($user->ui()->read() === false) {
-      throw new PermissionsException();
+    if(!panel()->user()->isAdmin() and !$user->isCurrent()) {
+      $this->redirect('users');
     }
 
     $form = $user->form('user', function($form) use($user, $self) {
@@ -106,23 +105,29 @@ class UsersController extends Kirby\Panel\Controllers\Base {
     $user = $this->user($username);
     $self = $this;
 
-    if($user->ui()->delete() === false) {
-      throw new PermissionsException();
+    if(!panel()->user()->isAdmin() and !$user->isCurrent()) {
+      return $this->modal('error', array(
+        'headline' => l('error'),
+        'text'     => l('users.delete.error.rights'),
+        'back'     => purl('users')
+      ));
+    } else {
+
+      $form = $user->form('delete', function($form) use($user, $self) {
+
+        try {
+          $user->delete();
+          $self->notify(':)');
+          $self->redirect('users');
+        } catch(Exception $e) {
+          $form->alert($e->getMessage());
+        }
+
+      });
+
+      return $this->modal('users/delete', compact('form'));
+
     }
-
-    $form = $user->form('delete', function($form) use($user, $self) {
-
-      try {
-        $user->delete();
-        $self->notify(':)');
-        $self->redirect('users');
-      } catch(Exception $e) {
-        $form->alert($e->getMessage());
-      }
-
-    });
-
-    return $this->modal('users/delete', compact('form'));
 
   }
 

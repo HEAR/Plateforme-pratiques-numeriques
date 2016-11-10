@@ -1,30 +1,22 @@
 <?php 
 
 $user = panel()->user();
-$read = $user->ui()->read();
 
-if($read) {
-  $options = [
-    [
+return array(
+  'title' => array(
+    'text'   => l('dashboard.index.account.title'),
+    'link'   => $user->url('edit'),
+  ),
+  'options' => array(
+    array(
       'text' => l('dashboard.index.account.edit'),
       'icon' => 'pencil',
       'link' => $user->url('edit')
-    ]
-  ];
-} else {
-  $options = [];
-}
-
-return [
-  'title' => [
-    'text'   => l('dashboard.index.account.title'),
-    'link'   => $read ? $user->url('edit') : false,
-  ],
-  'options' => $options,
-  'html'    => function() use($user, $read) {
+    )
+  ),
+  'html'  => function() use($user) {
     return tpl::load(__DIR__ . DS . 'account.html.php', array(
-      'user' => $user,
-      'read' => $read
+      'user' => $user
     ));
   }
-];
+);

@@ -7,7 +7,6 @@ use S;
 use Str;
 use Exception;
 
-use Kirby\Panel\Event;
 use Kirby\Panel\Models\Page;
 use Kirby\Panel\Models\Page\Blueprint;
 
@@ -58,16 +57,7 @@ class Children extends \Children {
       $data[$key] = $field->default();
     }
 
-    $data  = array_merge($data, $content);
-    $event = $this->page->event('create:action', [
-      'parent'    => $this->page,
-      'template'  => $template,
-      'blueprint' => $blueprint,
-      'uid'       => $uid,
-      'data'      => $data      
-    ]);
-
-    $event->check();
+    $data = array_merge($data, $content);
 
     // create the new page and convert it to a page model
     $page = new Page($this->page, parent::create($uid, $template, $data)->dirname());
@@ -76,7 +66,7 @@ class Children extends \Children {
       throw new Exception(l('pages.add.error.create'));
     }
 
-    kirby()->trigger($event, $page);
+    kirby()->trigger('panel.page.create', $page);
 
     // subpage builder
     foreach((array)$page->blueprint()->pages()->build() as $build) {
@@ -98,22 +88,22 @@ class Children extends \Children {
 
       switch($mode) {
         case 'sidebar':
-          $id  = 'kirby_panel_pages_' . $hash;
+          $id  = 'pages.' . $hash;
           $var = 'page';
           break;
         case 'subpages/visible':
-          $id  = 'kirby_panel_subpages_visible_' . $hash;
+          $id  = 'subpages.visible.' . $hash;
           $var = 'visible';
           break;
         case 'subpages/invisible':
-          $id  = 'kirby_panel_subpages_invisible_' . $hash;
+          $id  = 'subpages.invisible.' . $hash;
           $var = 'invisible';
           break;
       }
 
       // filter out hidden pages
       $children = $this->filter(function($child) {
-        return $child->ui()->show();
+        return $child->blueprint()->hide() === false;
       });
 
       $children = $children->paginate($limit, array(

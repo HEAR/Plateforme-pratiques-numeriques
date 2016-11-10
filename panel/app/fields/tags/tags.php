@@ -24,7 +24,7 @@ class TagsField extends TextField {
 
     if(isset($this->data)) {
 
-      $input->data('url', json_encode($this->data));
+      $input->data('url', html(json_encode($this->data), false));
 
     } else if($page = $this->page()) {
 

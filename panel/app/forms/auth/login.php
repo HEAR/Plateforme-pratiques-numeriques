@@ -9,7 +9,7 @@ return function() {
       'icon'      => 'user',
       'required'  => true,
       'autofocus' => true,
-      'default'   => s::get('kirby_panel_username')
+      'default'   => s::get('username')
     ),
     'password' => array(
       'label'     => 'login.password.label',

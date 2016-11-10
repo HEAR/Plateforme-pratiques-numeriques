@@ -21,7 +21,7 @@
     <a title="<?php _l('files.show.open') ?> (o)" data-shortcut="o" target="_blank" class="fileview-image-link fileview-preview-link" href="<?php __($file->url('preview')) ?>">
       <?php if($file->extension() == 'svg'): ?>
       <object data="<?php __($file->url('preview')) ?>"></object>
-      <?php elseif($file->options()->preview()): ?>
+      <?php elseif($file->canHavePreview()): ?>
       <img src="<?php __($file->url('preview')) ?>" alt="<?php __($file->filename()) ?>">
       <?php else: ?>
       <span>
@@ -37,6 +37,7 @@
 
     <div class="section">
 
+
       <?php echo $form ?>
 
       <nav class="fileview-options">
@@ -49,33 +50,18 @@
           </li>
 
           <li>
-            <?php if($file->ui()->replace()): ?>
-            <a data-upload title="r" data-shortcut="r" href="#replace" class="btn btn-with-icon">
+            <a data-upload title="r" data-shortcut="r" href="#replay" class="btn btn-with-icon">
               <?php i('cloud-upload', 'left') ?>
               <?php _l('files.show.replace') ?>
             </a>
-            <?php else: ?>
-            <span class="btn btn-with-icon btn-disabled">
-              <?php i('cloud-upload', 'left') ?>
-              <?php _l('files.show.replace') ?>
-            </span>
-            <?php endif ?>
           </li>
 
           <li>
-            <?php if($file->ui()->delete()): ?>
             <a data-modal title="#" data-shortcut="#" href="<?php __($file->url('delete') . '?_redirect=' . $returnTo) ?>" class="btn btn-with-icon">
               <?php i('trash-o', 'left') ?>
               <?php _l('files.show.delete') ?>
             </a>
-            <?php else: ?>
-            <span class="btn btn-with-icon btn-disabled">
-              <?php i('trash-o', 'left') ?>
-              <?php _l('files.show.delete') ?>
-            </span>
-            <?php endif ?>
           </li>
-
         </ul>
       </nav>
     </div>

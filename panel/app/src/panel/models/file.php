@@ -3,10 +3,8 @@
 namespace Kirby\Panel\Models;
 
 use C;
-use Kirby\Panel\Event;
 use Kirby\Panel\Structure;
 use Kirby\Panel\Models\File\Menu;
-use Kirby\Panel\Models\File\UI;
 use Kirby\Panel\Models\Page\Uploader;
 
 class File extends \File {
@@ -50,10 +48,6 @@ class File extends \File {
     return new Menu($this);    
   }
 
-  public function ui() {
-    return new UI($this);
-  }
-
   public function form($action, $callback) {    
     return panel()->form('files/' . $action, $this, $callback);
   }
@@ -74,25 +68,35 @@ class File extends \File {
     return $this->meta()->toArray();    
   }
 
+  public function canHavePreview() {
+    return $this->isWebImage() or $this->extension() == 'svg';    
+  }  
+
   public function isWebImage() {
     $images = array('image/jpeg', 'image/gif', 'image/png');
     return in_array($this->mime(), $images);
   }
 
+  public function canHaveThumb() {
+    if(!$this->isWebImage()) {
+      return false;
+    } else if(kirby()->option('thumbs.driver') == 'gd') {
+      if($this->width() > 2048 or $this->height() > 2048) {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      return true;      
+    }
+  }
+
   public function rename($name, $safeName = true) {
 
     // keep the old state of the file object
-    $old   = clone $this;
-    $event = $this->event('rename:action', [
-      'name'     => $name,
-      'safeName' => $safeName
-    ]);
+    $old = clone $this;
 
-    // don't do anything if it's the same name
     if($name == $this->name()) return true;
-
-    // check for permissions
-    $event->check();
 
     // check if the name should be sanitized
     $safeName = $this->page()->blueprint()->files()->sanitize();
@@ -104,7 +108,7 @@ class File extends \File {
     $this->page()->removeThumbs();
 
     // trigger the rename hook
-    kirby()->trigger($event, array($this, $old));          
+    kirby()->trigger('panel.file.rename', array($this, $old));          
 
   }
 
@@ -114,19 +118,9 @@ class File extends \File {
     $old = clone $this;
 
     if($data == 'sort') {
-
-      // create the sorting event
-      $event = $this->event('sort:action', ['sort' => $sort]);
-
-      // check for permissions
-      $event->check();
-
-      parent::update(['sort' => $sort]);
-
-      kirby()->trigger($event, [$this, $old]);
-
+      parent::update(array('sort' => $sort));
+      kirby()->trigger('panel.file.sort', array($this, $old));
       return true;
-
     }
 
     // rename the file if necessary
@@ -139,24 +133,12 @@ class File extends \File {
     unset($data['_info']);
     unset($data['_link']);
 
-    // don't do anything on missing data
-    if(empty($data)) return true;
-
-    // check if the form has been allowed to be submitted
-    if($this->event('update:ui')->isDenied()) {
-      return true;
+    if(!empty($data)) {
+      parent::update($data);          
     }
 
-    // create the update event
-    $event = $this->event('update:action', ['data' => $data]);
-    
-    // check for update permissions
-    $event->check();
-
-    parent::update($data);          
-
     if($trigger) {
-      kirby()->trigger($event, [$this, $old]);
+      kirby()->trigger('panel.file.update', array($this, $old));
     }
 
   }
@@ -167,19 +149,12 @@ class File extends \File {
 
   public function delete() {
 
-    // create the delete event
-    $event = $this->event('delete:action');
-
-    // check for permissions
-    $event->check();
-
-    // delete the file
     parent::delete();
 
     // clean the thumbs folder
     $this->page()->removeThumbs();
 
-    kirby()->trigger($event, $this);    
+    kirby()->trigger('panel.file.delete', $this);    
 
   }
 
@@ -273,13 +248,6 @@ class File extends \File {
 
   public function structure() {
     return new Structure($this, 'file_' . $this->page()->id() . '_' . $this->filename() . '_' . $this->site()->lang());
-  }
-
-  public function event($type, $args = []) {  
-    return new Event('panel.file.' . $type, array_merge([
-      'page' => $this->page(),
-      'file' => $this
-    ], $args));
   }
 
 }
